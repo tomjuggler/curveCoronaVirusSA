@@ -1,3 +1,5 @@
+import org.gicentre.utils.stat.*;        // For chart classes.
+
 ////////////////////new total://///////////////
 JSONArray values;
 JSONObject corona;
@@ -10,17 +12,28 @@ int[] lat = {110, 370, 305, 360, 325, 235, 250, 250, 130, 290, 340};
 int[] lon = {355, 210, 130, 125, 65, 145, 225, 315, 240, 370, 350};
 int total = 0;
 
+float[] risingTotal= {0};
+
 PImage map1;
 
+BarChart barChart;
+PFont titleFont,smallFont;
+
 void setup() {
+  //titleFont = loadFont("Helvetica-22.vlw");
+  //smallFont = loadFont("Helvetica-12.vlw");
+  //textFont(smallFont);
+
+  barChart = new BarChart(this);
+  
   total = 0; //double check we get this right at the start
   noLoop(); //new try this
-  size(800, 800);
+  size(640, 480);
 
   textSize(20);
   map1 = loadImage("map.gif");
   background(0);
-  image(map1, 0, 0, width, height);
+  //image(map1, 0, 0, width, height);
 
   //offline for testing:
   //  table = loadTable("data.csv", "header, csv");
@@ -29,9 +42,29 @@ void setup() {
   table = loadTable("https://raw.githubusercontent.com/dsfsi/covid19za/master/data/covid19za_provincial_cumulative_timeline_confirmed.csv", "header, csv");
   for (TableRow row : table.rows()) {
     total++;
+    float nextTotal = row.getInt(provinceNames[provinces.length-1]);
+    //println(total + ": " + nextTotal);
+    if(nextTotal > 0){
+    risingTotal = append(risingTotal, nextTotal);
+    }
   }
-  println(total);
+  //println(risingTotal);
+  barChart.setData(risingTotal);
+  barChart.setBarColour(color(200,80,80,100));
+  barChart.setBarGap(2); 
+  //barChart.setValueFormat("$###,###");
+  barChart.showValueAxis(true); 
+  barChart.showCategoryAxis(false); 
+  
+  barChart.draw(10,10,width-20,height-20);
 
+int d = day();    // Values from 1 - 31
+int m = month();  // Values from 1 - 12
+int y = year();   // 2003, 2004, 2005, etc.
+
+text("Daily Increase in Cases Up until " + d + "/" + m + "/" + y, 70, 30);
+  //println(total);
+/*
   TableRow row = table.getRow(total-1);
   //println(row);
 
@@ -65,4 +98,5 @@ void setup() {
   float latAdj2 = map(290, 0, 450, 0, width);
   float lonAdj2 = map(370, 0, 383, 0, height);
   text("unknown province:", latAdj2-180, lonAdj2);
+  */
 }
